@@ -141,23 +141,32 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                {% for message in messages %}
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: '{{ message.tags }}' === 'error' ? 'error' : 'success',
-                    title: '{{ message }}',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                    background: 'rgba(5, 5, 5, 0.95)',
-                    color: '#f0fdf4',
-                    iconColor: '#4ade80',
-                    customClass: {
-                        popup: 'glass-panel border border-success'
-                    }
+                const toastData = [
+                    {% for message in messages %}
+                    {
+                        tags: "{{ message.tags|escapejs }}",
+                        text: "{{ message|escapejs }}"
+                    }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ];
+
+                toastData.forEach(msg => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: msg.tags === 'error' ? 'error' : 'success',
+                        title: msg.text,
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true,
+                        background: 'rgba(5, 5, 5, 0.95)',
+                        color: '#f0fdf4',
+                        iconColor: '#4ade80',
+                        customClass: {
+                            popup: 'glass-panel border border-success'
+                        }
+                    });
                 });
-                {% endfor %}
             });
         </script>
         {% endif %}
