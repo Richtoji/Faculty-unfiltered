@@ -363,3 +363,15 @@ def delete_photo(request, photo_id):
             messages.error(request, "Photo not found.")
     return redirect('admin_dashboard')
 
+@staff_member_required
+def delete_issue(request, issue_id):
+    if request.method == 'POST':
+        try:
+            issue = Issue.objects.get(id=issue_id)
+            issue.delete()
+            messages.success(request, "Ticket removed from system logs.")
+        except Issue.DoesNotExist:
+            messages.error(request, "Issue not found.")
+    return redirect('admin_dashboard')
+
+

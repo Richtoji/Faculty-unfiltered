@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin-dashboard/update-issue/<int:issue_id>/', views.update_issue_status, name='update_issue_status'),
     path('admin-dashboard/delete-suggestion/<int:suggestion_id>/', views.delete_suggestion, name='delete_suggestion'),
     path('admin-dashboard/delete-photo/<int:photo_id>/', views.delete_photo, name='delete_photo'),
+    path('admin-dashboard/delete-issue/<int:issue_id>/', views.delete_issue, name='delete_issue'),
 ]

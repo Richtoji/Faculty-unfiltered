@@ -75,53 +75,91 @@
     <div class="tab-content p-4 p-md-5" id="adminTabsContent">
         <!-- Feedbacks Panel -->
         <div class="tab-pane fade show active" id="feedback-panel" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0" style="font-family: 'Outfit';">Clearance Queue</h4>
-                <span class="small text-muted">{{ pending_feedbacks|length }} items awaiting action</span>
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0 text-warning" style="font-family: 'Outfit';"><i class="bi bi-hourglass-split me-2"></i> Clearance Queue</h4>
+                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">{{ pending_feedbacks|length }} PENDING</span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover border-secondary">
+                        <thead class="text-uppercase small fw-bold" style="color: rgba(240,253,244,0.6);">
+                            <tr>
+                                <th>Target</th>
+                                <th>Rating</th>
+                                <th>Payload</th>
+                                <th>Evidence</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fb in pending_feedbacks %}
+                            <tr>
+                                <td><div class="fw-bold text-white">{{ fb.target }}</div><div class="small text-muted">{{ fb.category }}</div></td>
+                                <td><span class="text-primary"><i class="bi bi-star-fill"></i> {{ fb.rating }}</span></td>
+                                <td style="max-width: 250px;"><div class="small text-truncate" title="{{ fb.message }}">{{ fb.message }}</div></td>
+                                <td>
+                                    {% if fb.document %}
+                                    <a href="{{ fb.document }}" target="_blank" class="btn btn-sm btn-outline-info px-2"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                                    {% else %}<span class="text-muted small">None</span>{% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <form method="post" action="{% url 'approve_feedback' fb.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success px-3">Authorize</button>
+                                        </form>
+                                        <form method="post" action="{% url 'delete_feedback' fb.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Purge</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-4 text-muted small">No pending transmissions detected.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            
-            <div class="table-responsive">
-                <table class="table table-dark table-hover border-secondary">
-                    <thead class="text-uppercase small fw-bold" style="color: rgba(240,253,244,0.6);">
-                        <tr>
-                            <th>Target</th>
-                            <th>Rating</th>
-                            <th>Payload (Message)</th>
-                            <th>Evidence</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for fb in pending_feedbacks %}
-                        <tr>
-                            <td><div class="fw-bold text-white">{{ fb.target }}</div><div class="small text-muted">{{ fb.category }}</div></td>
-                            <td><span class="text-primary"><i class="bi bi-star-fill"></i> {{ fb.rating }}</span></td>
-                            <td style="max-width: 250px;"><div class="small text-truncate" title="{{ fb.message }}">{{ fb.message }}</div></td>
-                            <td>
-                                {% if fb.document %}
-                                <a href="{{ fb.document }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
-                                {% else %}
-                                <span class="text-muted small">None</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <form method="post" action="{% url 'approve_feedback' fb.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-success px-3">Authorize</button>
-                                    </form>
+
+            <hr class="border-white border-opacity-10 my-5">
+
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0 text-success" style="font-family: 'Outfit';"><i class="bi bi-check-all me-2"></i> Approved History</h4>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">{{ approved_feedbacks|length }} ACTIVE</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover border-secondary">
+                        <thead class="text-uppercase small fw-bold" style="color: rgba(240,253,244,0.4);">
+                            <tr>
+                                <th>Target</th>
+                                <th>Payload</th>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fb in approved_feedbacks %}
+                            <tr>
+                                <td class="small"><div class="fw-bold text-white">{{ fb.target }}</div></td>
+                                <td style="max-width: 300px;"><div class="small text-truncate opacity-75">{{ fb.message }}</div></td>
+                                <td class="small text-muted">{{ fb.created_at|date:"M d, H:i" }}</td>
+                                <td>
                                     <form method="post" action="{% url 'delete_feedback' fb.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Purge</button>
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0 text-decoration-none">Remove</button>
                                     </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="5" class="text-center py-5 text-muted small">No pending transmissions detected.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4 text-muted small">No approved records in database.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -136,6 +174,7 @@
                             <th>Priority</th>
                             <th>Status</th>
                             <th>Update Sequence</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -157,6 +196,12 @@
                                         <option value="Resolved" {% if issue.status == 'Resolved' %}selected{% endif %}>Resolved</option>
                                     </select>
                                     <button type="submit" class="btn btn-sm btn-primary">Sync</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'delete_issue' issue.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                 </form>
                             </td>
                         </tr>
