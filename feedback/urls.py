@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin-dashboard/delete-suggestion/<int:suggestion_id>/', views.delete_suggestion, name='delete_suggestion'),
     path('admin-dashboard/delete-photo/<int:photo_id>/', views.delete_photo, name='delete_photo'),
     path('admin-dashboard/delete-issue/<int:issue_id>/', views.delete_issue, name='delete_issue'),
+    path('admin-login/', views.admin_login_view, name='admin_login'),
+    path('admin-logout/', views.admin_logout, name='admin_logout'),
 ]

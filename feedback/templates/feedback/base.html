@@ -129,10 +129,16 @@
                         </a>
                     </li>
                     <li class="nav-item ms-lg-2">
+                        {% if user.is_authenticated and user.is_staff %}
+                        <a href="{% url 'admin_logout' %}" class="btn btn-link nav-link px-3 small fw-bold cursor-hover text-danger d-flex align-items-center border-0 bg-transparent text-decoration-none">
+                            <i class="bi bi-shield-slash me-2"></i> Terminate Admin Session
+                        </a>
+                        {% else %}
                         <button onclick="handleLogout()"
                             class="btn btn-link nav-link px-3 small fw-medium cursor-hover text-danger d-flex align-items-center border-0 bg-transparent">
                             <i class="bi bi-power me-2"></i> Disconnect
                         </button>
+                        {% endif %}
                     </li>
                 </ul>
             </div>

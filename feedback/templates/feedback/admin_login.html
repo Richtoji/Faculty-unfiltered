@@ -1,0 +1,49 @@
+{% extends 'feedback/base.html' %}
+{% load static %}
+
+{% block title %}FacultyUnfiltered | Admin Access{% endblock %}
+
+{% block content %}
+<div class="row min-vh-75 align-items-center justify-content-center pt-5">
+    <div class="col-md-6 col-lg-5" data-aos="zoom-in">
+        <div class="glass-panel p-5 rounded-1 position-relative overflow-hidden">
+            <!-- Background scanning effect -->
+            <div class="tech-scan-line" style="background: linear-gradient(to bottom, transparent, var(--primary), transparent); opacity: 0.3;"></div>
+            
+            <div class="text-center mb-4 position-relative z-1">
+                <div class="d-inline-flex bg-dark bg-opacity-50 rounded-circle p-3 mb-3" style="border: 1px solid var(--primary);">
+                    <i class="bi bi-shield-lock display-4" style="color: var(--primary);"></i>
+                </div>
+                <h2 class="fw-bolder mt-2 poster-title" style="letter-spacing: 2px;">SECURE OVERRIDE</h2>
+                <p class="fw-medium text-muted">Administrative Clearance Required.</p>
+            </div>
+
+            <form method="post" action="{% url 'admin_login' %}" class="position-relative z-1">
+                {% csrf_token %}
+                
+                <div class="form-floating mb-3">
+                    <input type="text" name="username" class="form-control glass-input" id="adminUser" placeholder="Admin ID" required>
+                    <label for="adminUser"><i class="bi bi-person-badge-fill me-2"></i> Commander ID</label>
+                </div>
+
+                <div class="form-floating mb-4">
+                    <input type="password" name="password" class="form-control glass-input" id="adminPass" placeholder="Passphrase" required>
+                    <label for="adminPass"><i class="bi bi-key-fill me-2"></i> Encryption Key</label>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary-custom py-3 fw-bold shadow-lg" style="letter-spacing: 2px;">
+                        <i class="bi bi-cpu-fill me-2"></i> INITIALIZE OVERRIDE
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 text-center small position-relative z-1">
+                <a href="{% url 'landing' %}" class="text-decoration-none text-muted hover-white">
+                    <i class="bi bi-arrow-left me-1"></i> Return to Public Sector
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

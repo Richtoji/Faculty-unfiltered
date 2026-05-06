@@ -1,12 +1,37 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Avg, Q
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm
 import base64
 from io import BytesIO
 from PIL import Image
 from .models import Feedback, Issue, Suggestion, CampusPhoto, PhotoComment, PhotoLike
+
+def admin_login_view(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_dashboard')
+    
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None and user.is_staff:
+                login(request, user)
+                messages.success(request, f"Welcome back, Commander {username}.")
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, "Access Denied: Invalid credentials or insufficient clearance.")
+        else:
+            messages.error(request, "Invalid login parameters.")
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'feedback/admin_login.html', {'form': form})
 
 def process_image(uploaded_file):
     try:
@@ -271,7 +296,7 @@ def add_comment(request, photo_id):
     return redirect('gallery')
 from django.contrib.admin.views.decorators import staff_member_required
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def admin_dashboard(request):
     # Feedback Stats
     all_feedbacks = Feedback.objects.all()
@@ -304,7 +329,7 @@ def admin_dashboard(request):
     }
     return render(request, 'feedback/admin_dashboard.html', context)
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def approve_feedback(request, feedback_id):
     if request.method == 'POST':
         try:
@@ -316,7 +341,7 @@ def approve_feedback(request, feedback_id):
             messages.error(request, "Feedback not found.")
     return redirect('admin_dashboard')
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def delete_feedback(request, feedback_id):
     if request.method == 'POST':
         try:
@@ -327,7 +352,7 @@ def delete_feedback(request, feedback_id):
             messages.error(request, "Feedback not found.")
     return redirect('admin_dashboard')
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def update_issue_status(request, issue_id):
     if request.method == 'POST':
         try:
@@ -341,7 +366,7 @@ def update_issue_status(request, issue_id):
             messages.error(request, "Issue not found.")
     return redirect('admin_dashboard')
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def delete_suggestion(request, suggestion_id):
     if request.method == 'POST':
         try:
@@ -352,7 +377,7 @@ def delete_suggestion(request, suggestion_id):
             messages.error(request, "Suggestion not found.")
     return redirect('admin_dashboard')
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def delete_photo(request, photo_id):
     if request.method == 'POST':
         try:
@@ -363,7 +388,7 @@ def delete_photo(request, photo_id):
             messages.error(request, "Photo not found.")
     return redirect('admin_dashboard')
 
-@staff_member_required
+@staff_member_required(login_url='admin_login')
 def delete_issue(request, issue_id):
     if request.method == 'POST':
         try:
@@ -373,5 +398,10 @@ def delete_issue(request, issue_id):
         except Issue.DoesNotExist:
             messages.error(request, "Issue not found.")
     return redirect('admin_dashboard')
+
+def admin_logout(request):
+    logout(request)
+    messages.success(request, "Session terminated. System secured.")
+    return redirect('admin_login')
 
 
