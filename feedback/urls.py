@@ -14,4 +14,8 @@ urlpatterns = [
     path('gallery/upload/', views.upload_photo, name='upload_photo'),
     path('gallery/like/<int:photo_id>/', views.like_photo, name='like_photo'),
     path('gallery/comment/<int:photo_id>/', views.add_comment, name='add_comment'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-dashboard/approve/<int:feedback_id>/', views.approve_feedback, name='approve_feedback'),
+    path('admin-dashboard/delete/<int:feedback_id>/', views.delete_feedback, name='delete_feedback'),
+    path('admin-dashboard/update-issue/<int:issue_id>/', views.update_issue_status, name='update_issue_status'),
 ]

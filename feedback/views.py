@@ -269,3 +269,52 @@ def add_comment(request, photo_id):
         except (CampusPhoto.DoesNotExist, ValidationError):
             messages.error(request, 'Could not post comment.')
     return redirect('gallery')
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def admin_dashboard(request):
+    pending_feedbacks = Feedback.objects.filter(is_approved=False).order_by('-created_at')
+    issues = Issue.objects.all().order_by('-created_at')
+    
+    context = {
+        'pending_feedbacks': pending_feedbacks,
+        'issues': issues,
+    }
+    return render(request, 'feedback/admin_dashboard.html', context)
+
+@staff_member_required
+def approve_feedback(request, feedback_id):
+    if request.method == 'POST':
+        try:
+            fb = Feedback.objects.get(id=feedback_id)
+            fb.is_approved = True
+            fb.save()
+            messages.success(request, f"Feedback for {fb.target} approved.")
+        except Feedback.DoesNotExist:
+            messages.error(request, "Feedback not found.")
+    return redirect('admin_dashboard')
+
+@staff_member_required
+def delete_feedback(request, feedback_id):
+    if request.method == 'POST':
+        try:
+            fb = Feedback.objects.get(id=feedback_id)
+            fb.delete()
+            messages.success(request, "Feedback deleted.")
+        except Feedback.DoesNotExist:
+            messages.error(request, "Feedback not found.")
+    return redirect('admin_dashboard')
+
+@staff_member_required
+def update_issue_status(request, issue_id):
+    if request.method == 'POST':
+        try:
+            issue = Issue.objects.get(id=issue_id)
+            new_status = request.POST.get('status')
+            if new_status in [s[0] for s in Issue.STATUS_CHOICES]:
+                issue.status = new_status
+                issue.save()
+                messages.success(request, f"Issue '{issue.title}' updated to {new_status}.")
+        except Issue.DoesNotExist:
+            messages.error(request, "Issue not found.")
+    return redirect('admin_dashboard')
