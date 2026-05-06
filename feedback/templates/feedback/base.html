@@ -80,63 +80,67 @@
                 <i class="bi bi-list fs-2 cursor-hover" style="color: var(--primary);"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
                     <li class="nav-item">
-                        <a class="nav-link px-3 cursor-hover fw-bold hover-white d-flex align-items-center"
-                            style="font-family: 'Outfit', sans-serif;" href="{% url 'home' %}">
-                            <i class="bi bi-grid-1x2 me-2"></i> Dashboard
+                        <a class="nav-link px-2 cursor-hover fw-bold hover-white d-flex align-items-center"
+                            style="font-family: 'Outfit', sans-serif; font-size: 0.85rem;" href="{% url 'home' %}">
+                            <i class="bi bi-grid-1x2 me-1"></i> Dashboard
                         </a>
                     </li>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-primary-custom px-4 py-2 shadow-lg d-flex align-items-center" href="{% url 'submit_feedback' %}">
-                            <i class="bi bi-shield-lock-fill me-2"></i> Submit Data
-                        </a>
-                    </li>
-                    
-                    <!-- Vertical Divider for Desktop -->
-                    <li class="nav-item d-none d-lg-block mx-3" style="height: 24px; border-left: 1px solid rgba(74,222,128,0.2);"></li>
-
-                    <li class="nav-item">
-                        <a class="nav-link px-3 text-decoration-none fw-medium cursor-hover hover-white d-flex align-items-center"
-                            style="color: rgba(240,253,244,0.85);" href="{% url 'issues' %}">
-                            <i class="bi bi-megaphone me-2" style="color: var(--primary);"></i> Ticket
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3 text-decoration-none fw-medium cursor-hover hover-white d-flex align-items-center"
-                            style="color: rgba(240,253,244,0.85);" href="{% url 'gallery' %}">
-                            <i class="bi bi-safe2 me-2" style="color: var(--primary);"></i> Vault
+                    <li class="nav-item mx-1">
+                        <a class="btn btn-primary-custom px-3 py-1 shadow-sm d-flex align-items-center" 
+                           style="font-size: 0.85rem; border-radius: 20px;" href="{% url 'submit_feedback' %}">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Submit
                         </a>
                     </li>
                     
-                    <li class="nav-item d-none d-lg-block mx-3" style="height: 24px; border-left: 1px solid rgba(74,222,128,0.2);"></li>
+                    <li class="nav-item d-none d-lg-block mx-2" style="height: 20px; border-left: 1px solid rgba(74,222,128,0.2);"></li>
 
                     <li class="nav-item">
-                        <span class="nav-link px-3 small fw-bold d-flex align-items-center" style="color: rgba(240,253,244,0.8); font-family: 'Outfit', sans-serif;">
-                            <i class="bi bi-clock me-2" style="color: var(--primary);"></i>
+                        <a class="nav-link px-2 text-decoration-none fw-medium cursor-hover hover-white d-flex align-items-center"
+                            style="color: rgba(240,253,244,0.85); font-size: 0.85rem;" href="{% url 'issues' %}">
+                            <i class="bi bi-megaphone me-1" style="color: var(--primary);"></i> Ticket
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2 text-decoration-none fw-medium cursor-hover hover-white d-flex align-items-center"
+                            style="color: rgba(240,253,244,0.85); font-size: 0.85rem;" href="{% url 'gallery' %}">
+                            <i class="bi bi-safe2 me-1" style="color: var(--primary);"></i> Vault
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item d-none d-lg-block mx-2" style="height: 20px; border-left: 1px solid rgba(74,222,128,0.2);"></li>
+
+                    <li class="nav-item">
+                        <span class="nav-link px-2 small fw-bold d-flex align-items-center" 
+                              style="color: rgba(240,253,244,0.8); font-family: 'Outfit', sans-serif; font-size: 0.8rem; white-space: nowrap;">
+                            <i class="bi bi-clock me-1" style="color: var(--primary);"></i>
                             <span id="live-clock">00:00:00</span>
                         </span>
                     </li>
                     <li class="nav-item">
-                        <span id="user-greeting" class="nav-link px-3 small fw-medium d-flex align-items-center" style="color: rgba(240,253,244,0.7);">
-                            <i class="bi bi-cpu me-2" style="color: var(--primary);"></i> Agent
+                        <span id="user-greeting" class="nav-link px-2 small fw-medium d-flex align-items-center text-truncate" 
+                              style="color: rgba(240,253,244,0.7); font-size: 0.8rem; max-width: 120px;">
+                            <i class="bi bi-cpu me-1" style="color: var(--primary);"></i> Agent
                         </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3 small fw-medium cursor-hover hover-white d-flex align-items-center"
-                            style="color: rgba(240,253,244,0.7);" href="{% url 'admin_dashboard' %}">
-                            <i class="bi bi-terminal me-2" style="color: var(--primary);"></i> SysAdmin
+                        <a class="nav-link px-2 small fw-medium cursor-hover hover-white d-flex align-items-center"
+                            style="color: rgba(240,253,244,0.7); font-size: 0.8rem;" href="{% url 'admin_dashboard' %}">
+                            <i class="bi bi-terminal me-1" style="color: var(--primary);"></i> Admin
                         </a>
                     </li>
-                    <li class="nav-item ms-lg-2">
+                    <li class="nav-item ms-1">
                         {% if user.is_authenticated and user.is_staff %}
-                        <a href="{% url 'admin_logout' %}" class="btn btn-link nav-link px-3 small fw-bold cursor-hover text-danger d-flex align-items-center border-0 bg-transparent text-decoration-none">
-                            <i class="bi bi-shield-slash me-2"></i> Terminate Admin Session
+                        <a href="{% url 'admin_logout' %}" class="btn btn-outline-danger py-1 px-2 small fw-bold cursor-hover d-flex align-items-center text-decoration-none"
+                           style="font-size: 0.75rem; border-radius: 4px;">
+                            <i class="bi bi-power me-1"></i> Logout
                         </a>
                         {% else %}
                         <button onclick="handleLogout()"
-                            class="btn btn-link nav-link px-3 small fw-medium cursor-hover text-danger d-flex align-items-center border-0 bg-transparent">
-                            <i class="bi bi-power me-2"></i> Disconnect
+                            class="btn btn-link nav-link px-2 small fw-medium cursor-hover text-danger d-flex align-items-center border-0 bg-transparent"
+                            style="font-size: 0.8rem;">
+                            <i class="bi bi-power me-1"></i> Exit
                         </button>
                         {% endif %}
                     </li>
