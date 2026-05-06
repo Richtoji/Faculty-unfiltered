@@ -14,6 +14,7 @@ class Feedback(models.Model):
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     target = models.CharField(max_length=200, help_text="Teacher's name, Subject name, or facility")
     message = models.TextField()
+    document = models.CharField(max_length=255, blank=True, null=True, help_text="Path to uploaded PDF")
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)], default=5)
     created_at = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=True, help_text="Faculty reviews stay False until admin approves.")

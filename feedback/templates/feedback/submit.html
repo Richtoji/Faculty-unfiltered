@@ -95,7 +95,7 @@
             </div>
 
             <div class="p-4 p-md-5 position-relative z-1 pt-4">
-                <form method="post" action="{% url 'submit_feedback' %}">
+                <form method="post" action="{% url 'submit_feedback' %}" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <div class="mb-4" data-aos="fade-up" data-aos-delay="100">
@@ -143,6 +143,11 @@
                                 style="height: 120px" placeholder="Write..." required></textarea>
                             <label for="floatingMessage">Encrypted Payload</label>
                         </div>
+                    </div>
+
+                    <div class="mb-4" data-aos="fade-up" data-aos-delay="350">
+                        <label for="pdf_file" class="form-label small fw-bold text-uppercase" style="color: rgba(240,253,244,0.6); letter-spacing: 1px;">Attach PDF Evidence (Optional)</label>
+                        <input class="form-control glass-input cursor-hover" type="file" id="pdf_file" name="pdf_file" accept=".pdf">
                     </div>
 
                     <div class="mb-4" data-aos="fade-up" data-aos-delay="400">

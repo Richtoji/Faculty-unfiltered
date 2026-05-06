@@ -88,6 +88,20 @@ def submit_feedback(request):
         is_approved = False # All reviews now require admin moderation
 
         feedback = Feedback(category=category, target=target, message=message, rating=rating, is_approved=is_approved)
+        
+        if 'pdf_file' in request.FILES:
+            from django.conf import settings
+            from django.core.files.storage import FileSystemStorage
+            import os
+            
+            pdf = request.FILES['pdf_file']
+            upload_dir = settings.BASE_DIR / 'uploads'
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            fs = FileSystemStorage(location=upload_dir)
+            filename = fs.save(pdf.name, pdf)
+            feedback.document = f"/uploads/{filename}"
+
         try:
             feedback.full_clean()
             feedback.save()

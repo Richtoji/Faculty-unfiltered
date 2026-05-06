@@ -99,6 +99,13 @@
                 <p class="lh-base mb-0 z-1 position-relative fs-6 fw-light" style="color: rgba(240,253,244,0.9);">
                     {{ fb.message }}
                 </p>
+                {% if fb.document %}
+                <div class="mt-3">
+                    <a href="{{ fb.document }}" target="_blank" class="btn btn-sm btn-outline-success border-success text-success border-opacity-50">
+                        <i class="bi bi-file-earmark-pdf"></i> View Attachment
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
