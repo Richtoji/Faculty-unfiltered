@@ -4,7 +4,24 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 import base64
+from io import BytesIO
+from PIL import Image
 from .models import Feedback, Issue, Suggestion, CampusPhoto, PhotoComment, PhotoLike
+
+def process_image(uploaded_file):
+    try:
+        img = Image.open(uploaded_file)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        img.thumbnail((1024, 1024))
+        buffer = BytesIO()
+        img.save(buffer, format='JPEG', quality=85)
+        encoded_string = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        return f"data:image/jpeg;base64,{encoded_string}"
+    except Exception:
+        uploaded_file.seek(0)
+        encoded_string = base64.b64encode(uploaded_file.read()).decode('utf-8')
+        return f"data:{uploaded_file.content_type};base64,{encoded_string}"
 
 def landing(request):
     return render(request, 'feedback/landing.html')
@@ -117,15 +134,15 @@ def submit_issue(request):
                 priority=request.POST.get('priority', 'Medium')
             )
             if 'image' in request.FILES:
-                uploaded_file = request.FILES['image']
-                encoded_string = base64.b64encode(uploaded_file.read()).decode('utf-8')
-                issue.image = f"data:{uploaded_file.content_type};base64,{encoded_string}"
+                issue.image = process_image(request.FILES['image'])
             issue.full_clean()
             issue.save()
             messages.success(request, 'Issue reported successfully!')
         except ValidationError as e:
             for err in e.messages:
                 messages.error(request, err)
+        except Exception as e:
+            messages.error(request, f"System error during upload: {str(e)}")
     return redirect('issues')
 
 def submit_suggestion(request):
@@ -185,10 +202,8 @@ def upload_photo(request):
     if request.method == 'POST':
         if 'image' in request.FILES:
             try:
-                uploaded_file = request.FILES['image']
-                encoded_string = base64.b64encode(uploaded_file.read()).decode('utf-8')
                 photo = CampusPhoto(
-                    image=f"data:{uploaded_file.content_type};base64,{encoded_string}",
+                    image=process_image(request.FILES['image']),
                     caption=request.POST.get('caption', ''),
                     category=request.POST.get('category', 'Campus Life'),
                     uploader_pseudonym=request.POST.get('pseudonym', 'Anonymous Scholar')
@@ -199,6 +214,8 @@ def upload_photo(request):
             except ValidationError as e:
                 for err in e.messages:
                     messages.error(request, err)
+            except Exception as e:
+                messages.error(request, f"System error during photo upload: {str(e)}")
         else:
             messages.error(request, 'Please provide an image.')
     return redirect('gallery')
