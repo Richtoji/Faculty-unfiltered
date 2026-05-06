@@ -31,7 +31,10 @@
             }
 
             // Check if current path requires auth and user is NOT logged in
-            if (!publicPaths.includes(currentPath) && !loggedInUser) {
+            // Allow /admin/ and /admin-dashboard/ to bypass localStorage check (they have their own Django auth)
+            const isAuthPath = currentPath.startsWith('/admin/') || currentPath.startsWith('/admin-dashboard/');
+            
+            if (!publicPaths.includes(currentPath) && !isAuthPath && !loggedInUser) {
                 window.location.href = '/login/';
                 return;
             }
@@ -139,23 +142,27 @@
     <div class="container pb-5">
         {% if messages %}
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <!-- Hidden area to store messages so the JS linter doesn't get confused -->
+        <div id="django-messages-storage" style="display: none;">
+            {% for message in messages %}
+                <span class="django-msg" data-tags="{{ message.tags|escapejs }}" data-text="{{ message|escapejs }}"></span>
+            {% endfor %}
+        </div>
+
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const toastData = [
-                    {% for message in messages %}
-                    {
-                        tags: "{{ message.tags|escapejs }}",
-                        text: "{{ message|escapejs }}"
-                    }{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ];
+                const messageElements = document.querySelectorAll('#django-messages-storage .django-msg');
+                
+                messageElements.forEach(el => {
+                    const tags = el.getAttribute('data-tags');
+                    const text = el.getAttribute('data-text');
 
-                toastData.forEach(msg => {
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
-                        icon: msg.tags === 'error' ? 'error' : 'success',
-                        title: msg.text,
+                        icon: tags === 'error' ? 'error' : 'success',
+                        title: text,
                         showConfirmButton: false,
                         timer: 5000,
                         timerProgressBar: true,

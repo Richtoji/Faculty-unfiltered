@@ -4,118 +4,227 @@
 {% block content %}
 <div class="row align-items-center mb-5 pt-4">
     <div class="col-md-7 text-center text-md-start mb-4 mb-md-0" data-aos="fade-right">
-        <h1 class="display-4 fw-bolder mb-2 poster-title" style="letter-spacing: 2px;">ADMIN CONTROL</h1>
-        <p class="fs-5 mb-0 fw-medium" style="color: var(--primary);">System Oversight & Moderation Portal</p>
+        <h1 class="display-4 fw-bolder mb-2 poster-title" style="letter-spacing: 2px;">COMMAND CENTER</h1>
+        <p class="fs-5 mb-0 fw-medium" style="color: var(--primary);">Root Administrative Access Granted.</p>
+    </div>
+    <div class="col-md-5 text-center text-md-end" data-aos="fade-left">
+        <div class="d-inline-flex align-items-center glass-panel px-4 py-2 border-primary border-opacity-25">
+            <span class="pulse-dot me-2"></span>
+            <span class="small fw-bold text-uppercase" style="letter-spacing: 1px;">Live System Monitoring</span>
+        </div>
     </div>
 </div>
 
-<div class="row g-5">
-    <!-- Pending Reviews Section -->
-    <div class="col-lg-12 mb-4" data-aos="fade-up">
-        <div class="glass-panel p-4 rounded-1">
-            <h3 class="fw-bold mb-4 d-flex align-items-center" style="font-family: 'Outfit';">
-                <i class="bi bi-shield-check me-2 text-warning"></i> Pending Approval Requests
-                <span class="badge bg-warning text-dark ms-3 fs-6">{{ pending_feedbacks|length }}</span>
-            </h3>
+<!-- Stats Overview -->
+<div class="row g-4 mb-5" data-aos="fade-up">
+    <div class="col-md-3">
+        <div class="glass-panel p-4 text-center cursor-hover rounded-1 border-primary border-opacity-10">
+            <div class="text-muted small fw-bold text-uppercase mb-2">Total Packets</div>
+            <div class="display-5 fw-bolder text-white">{{ stats.total_feedback }}</div>
+            <div class="small mt-2" style="color: var(--primary);">Feedbacks Logged</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-4 text-center cursor-hover rounded-1 border-warning border-opacity-10">
+            <div class="text-muted small fw-bold text-uppercase mb-2">Pending Clearances</div>
+            <div class="display-5 fw-bolder text-warning">{{ stats.pending_feedback }}</div>
+            <div class="small mt-2">Awaiting Approval</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-4 text-center cursor-hover rounded-1 border-info border-opacity-10">
+            <div class="text-muted small fw-bold text-uppercase mb-2">Active Faults</div>
+            <div class="display-5 fw-bolder text-info">{{ stats.total_issues }}</div>
+            <div class="small mt-2">System Tickets</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-4 text-center cursor-hover rounded-1 border-success border-opacity-10">
+            <div class="text-muted small fw-bold text-uppercase mb-2">Data Integrity</div>
+            <div class="display-5 fw-bolder text-success">99.9%</div>
+            <div class="small mt-2">Operational</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Admin Tabs -->
+<div class="glass-panel p-0 overflow-hidden rounded-1 mb-5" data-aos="fade-up" data-aos-delay="200">
+    <ul class="nav nav-pills nav-justified border-bottom border-white border-opacity-10 p-2" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active py-3 fw-bold text-uppercase" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#feedback-panel" type="button" role="tab">
+                <i class="bi bi-chat-left-dots me-2"></i> Feedbacks
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link py-3 fw-bold text-uppercase" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-panel" type="button" role="tab">
+                <i class="bi bi-exclamation-triangle me-2"></i> Tickets
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link py-3 fw-bold text-uppercase" id="suggestions-tab" data-bs-toggle="tab" data-bs-target="#suggestions-panel" type="button" role="tab">
+                <i class="bi bi-lightbulb me-2"></i> Proposals
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link py-3 fw-bold text-uppercase" id="vault-tab" data-bs-toggle="tab" data-bs-target="#vault-panel" type="button" role="tab">
+                <i class="bi bi-images me-2"></i> Vault
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content p-4 p-md-5" id="adminTabsContent">
+        <!-- Feedbacks Panel -->
+        <div class="tab-pane fade show active" id="feedback-panel" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0" style="font-family: 'Outfit';">Clearance Queue</h4>
+                <span class="small text-muted">{{ pending_feedbacks|length }} items awaiting action</span>
+            </div>
             
             <div class="table-responsive">
                 <table class="table table-dark table-hover border-secondary">
-                    <thead class="text-uppercase small fw-bold" style="letter-spacing: 1px; color: rgba(240,253,244,0.6);">
+                    <thead class="text-uppercase small fw-bold" style="color: rgba(240,253,244,0.6);">
                         <tr>
-                            <th>Category</th>
                             <th>Target</th>
-                            <th>Message</th>
                             <th>Rating</th>
-                            <th>Timestamp</th>
+                            <th>Payload (Message)</th>
+                            <th>Evidence</th>
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody class="fw-medium">
+                    <tbody>
                         {% for fb in pending_feedbacks %}
                         <tr>
-                            <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">{{ fb.category }}</span></td>
-                            <td class="text-white">{{ fb.target }}</td>
-                            <td style="max-width: 300px;"><p class="small mb-0 text-truncate" title="{{ fb.message }}">{{ fb.message }}</p></td>
+                            <td><div class="fw-bold text-white">{{ fb.target }}</div><div class="small text-muted">{{ fb.category }}</div></td>
                             <td><span class="text-primary"><i class="bi bi-star-fill"></i> {{ fb.rating }}</span></td>
-                            <td class="small text-muted">{{ fb.created_at|date:"Y-m-d H:i" }}</td>
+                            <td style="max-width: 250px;"><div class="small text-truncate" title="{{ fb.message }}">{{ fb.message }}</div></td>
+                            <td>
+                                {% if fb.document %}
+                                <a href="{{ fb.document }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                                {% else %}
+                                <span class="text-muted small">None</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 <div class="d-flex gap-2">
                                     <form method="post" action="{% url 'approve_feedback' fb.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-success px-3">Approve</button>
+                                        <button type="submit" class="btn btn-sm btn-success px-3">Authorize</button>
                                     </form>
                                     <form method="post" action="{% url 'delete_feedback' fb.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger px-3">Purge</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Purge</button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">No pending approvals detected in the system logs.</td>
-                        </tr>
+                        <tr><td colspan="5" class="text-center py-5 text-muted small">No pending transmissions detected.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
 
-    <!-- Issue Management Section -->
-    <div class="col-lg-12" data-aos="fade-up" data-aos-delay="200">
-        <div class="glass-panel p-4 rounded-1">
-            <h3 class="fw-bold mb-4 d-flex align-items-center" style="font-family: 'Outfit';">
-                <i class="bi bi-tools me-2 text-info"></i> Active System Faults (Issues)
-            </h3>
-            
+        <!-- Issues Panel -->
+        <div class="tab-pane fade" id="issues-panel" role="tabpanel">
+            <h4 class="fw-bold mb-4" style="font-family: 'Outfit';">Active Fault Logistics</h4>
             <div class="table-responsive">
-                <table class="table table-dark table-hover border-secondary">
-                    <thead class="text-uppercase small fw-bold" style="letter-spacing: 1px; color: rgba(240,253,244,0.6);">
+                <table class="table table-dark table-hover">
+                    <thead class="text-uppercase small fw-bold" style="color: rgba(240,253,244,0.6);">
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
+                            <th>Incident</th>
                             <th>Priority</th>
-                            <th>Current Status</th>
-                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Update Sequence</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for issue in issues %}
                         <tr>
-                            <td class="small text-muted">#{{ issue.id }}</td>
-                            <td class="text-white">{{ issue.title }}</td>
+                            <td><div class="fw-bold text-white">{{ issue.title }}</div><div class="small text-muted">{{ issue.location }}</div></td>
                             <td>
                                 <span class="badge {% if issue.priority == 'High' %}bg-danger{% elif issue.priority == 'Medium' %}bg-warning{% else %}bg-info{% endif %} bg-opacity-25 text-white">
                                     {{ issue.priority }}
                                 </span>
                             </td>
-                            <td>
-                                <span class="badge bg-light bg-opacity-10 text-white border border-white border-opacity-10">
-                                    {{ issue.status }}
-                                </span>
-                            </td>
+                            <td><span class="badge bg-light bg-opacity-10 border border-white border-opacity-10">{{ issue.status }}</span></td>
                             <td>
                                 <form method="post" action="{% url 'update_issue_status' issue.id %}" class="d-flex gap-2">
                                     {% csrf_token %}
-                                    <select name="status" class="form-select form-select-sm bg-dark text-white border-secondary" style="width: 140px;">
+                                    <select name="status" class="form-select form-select-sm bg-dark text-white border-secondary">
                                         <option value="Pending" {% if issue.status == 'Pending' %}selected{% endif %}>Pending</option>
                                         <option value="In Progress" {% if issue.status == 'In Progress' %}selected{% endif %}>In Progress</option>
                                         <option value="Resolved" {% if issue.status == 'Resolved' %}selected{% endif %}>Resolved</option>
                                     </select>
-                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                    <button type="submit" class="btn btn-sm btn-primary">Sync</button>
                                 </form>
                             </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">No active issues reported.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- Suggestions Panel -->
+        <div class="tab-pane fade" id="suggestions-panel" role="tabpanel">
+            <h4 class="fw-bold mb-4" style="font-family: 'Outfit';">System Improvement Proposals</h4>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead class="text-uppercase small fw-bold" style="color: rgba(240,253,244,0.6);">
+                        <tr>
+                            <th>Proposal</th>
+                            <th>Upvotes</th>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sug in suggestions %}
+                        <tr>
+                            <td><div class="fw-bold text-white">{{ sug.title }}</div><div class="small text-muted text-truncate" style="max-width: 300px;">{{ sug.description }}</div></td>
+                            <td class="text-success"><i class="bi bi-arrow-up-circle"></i> {{ sug.upvotes }}</td>
+                            <td class="small text-muted">{{ sug.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <form method="post" action="{% url 'delete_suggestion' sug.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Erase</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Vault Panel -->
+        <div class="tab-pane fade" id="vault-panel" role="tabpanel">
+            <h4 class="fw-bold mb-4" style="font-family: 'Outfit';">Gallery Assets (Vault)</h4>
+            <div class="row g-3">
+                {% for photo in photos %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="glass-panel p-2 rounded-1 position-relative group">
+                        <img src="{{ photo.image }}" class="img-fluid rounded-1 mb-2" style="height: 150px; width: 100%; object-fit: cover;">
+                        <div class="small fw-bold text-white text-truncate">{{ photo.uploader_pseudonym }}</div>
+                        <div class="small text-muted mb-2"><i class="bi bi-heart-fill text-danger small"></i> {{ photo.likes }} likes</div>
+                        <form method="post" action="{% url 'delete_photo' photo.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger w-100 py-1" style="font-size: 0.7rem;">Purge Asset</button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5 text-muted">No visual assets archived.</div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
+</div>
+
+<div class="text-center mt-3 mb-5" data-aos="fade-up">
+    <a href="{% url 'home' %}" class="btn btn-glass px-5 py-3 rounded-1">
+        <i class="bi bi-house-door me-2"></i> Return to Main Dashboard
+    </a>
 </div>
 {% endblock %}

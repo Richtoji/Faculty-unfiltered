@@ -273,12 +273,34 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 @staff_member_required
 def admin_dashboard(request):
-    pending_feedbacks = Feedback.objects.filter(is_approved=False).order_by('-created_at')
-    issues = Issue.objects.all().order_by('-created_at')
+    # Feedback Stats
+    all_feedbacks = Feedback.objects.all()
+    pending_feedbacks = all_feedbacks.filter(is_approved=False).order_by('-created_at')
+    approved_feedbacks = all_feedbacks.filter(is_approved=True).order_by('-created_at')
+    
+    # Issue Stats
+    all_issues = Issue.objects.all().order_by('-created_at')
+    
+    # Suggestions & Photos
+    all_suggestions = Suggestion.objects.all().order_by('-upvotes')
+    all_photos = CampusPhoto.objects.all().order_by('-created_at')
     
     context = {
+        'stats': {
+            'total_feedback': all_feedbacks.count(),
+            'pending_feedback': pending_feedbacks.count(),
+            'approved_feedback': approved_feedbacks.count(),
+            'total_issues': all_issues.count(),
+            'pending_issues': all_issues.filter(status='Pending').count(),
+            'resolved_issues': all_issues.filter(status='Resolved').count(),
+            'total_suggestions': all_suggestions.count(),
+            'total_photos': all_photos.count(),
+        },
         'pending_feedbacks': pending_feedbacks,
-        'issues': issues,
+        'approved_feedbacks': approved_feedbacks,
+        'issues': all_issues,
+        'suggestions': all_suggestions,
+        'photos': all_photos,
     }
     return render(request, 'feedback/admin_dashboard.html', context)
 
@@ -300,7 +322,7 @@ def delete_feedback(request, feedback_id):
         try:
             fb = Feedback.objects.get(id=feedback_id)
             fb.delete()
-            messages.success(request, "Feedback deleted.")
+            messages.success(request, "Feedback record purged.")
         except Feedback.DoesNotExist:
             messages.error(request, "Feedback not found.")
     return redirect('admin_dashboard')
@@ -318,3 +340,26 @@ def update_issue_status(request, issue_id):
         except Issue.DoesNotExist:
             messages.error(request, "Issue not found.")
     return redirect('admin_dashboard')
+
+@staff_member_required
+def delete_suggestion(request, suggestion_id):
+    if request.method == 'POST':
+        try:
+            sug = Suggestion.objects.get(id=suggestion_id)
+            sug.delete()
+            messages.success(request, "Suggestion removed from records.")
+        except Suggestion.DoesNotExist:
+            messages.error(request, "Suggestion not found.")
+    return redirect('admin_dashboard')
+
+@staff_member_required
+def delete_photo(request, photo_id):
+    if request.method == 'POST':
+        try:
+            photo = CampusPhoto.objects.get(id=photo_id)
+            photo.delete()
+            messages.success(request, "Media file purged from gallery.")
+        except CampusPhoto.DoesNotExist:
+            messages.error(request, "Photo not found.")
+    return redirect('admin_dashboard')
+
