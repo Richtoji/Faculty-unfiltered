@@ -408,22 +408,28 @@ def admin_logout(request):
     return redirect('admin_login')
 
 def emergency_admin_create(request):
-    """Temporary emergency view to create a superuser on production."""
+    """Temporary emergency view to create a superuser and AUTO-LOGIN on production."""
     from django.contrib.auth.models import User
+    from django.contrib.auth import login
     username = "admin"
     email = "admin@example.com"
     password = "admin123"
     
     if not User.objects.filter(username=username).exists():
-        User.objects.create_superuser(username, email, password)
-        return HttpResponse(f"<h1>SUCCESS: Admin '{username}' created!</h1><p>Go to <a href='/admin-login/'>Admin Login</a> and use password '{password}'</p>")
+        user = User.objects.create_superuser(username, email, password)
     else:
-        # Update password if it already exists
-        u = User.objects.get(username=username)
-        u.set_password(password)
-        u.is_staff = True
-        u.is_superuser = True
-        u.save()
-        return HttpResponse(f"<h1>SUCCESS: Admin '{username}' password reset to '{password}'!</h1><p>Go to <a href='/admin-login/'>Admin Login</a></p>")
+        user = User.objects.get(username=username)
+        user.set_password(password)
+    
+    # Force activation and permissions
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
+    user.save()
+    
+    # AUTOMATIC LOGIN
+    login(request, user)
+    
+    return HttpResponse(f"<h1>AUTHENTICATION SUCCESSFUL!</h1><p>Welcome back, Commander {username}.</p><p>Click here to enter the <a href='/admin-dashboard/'>Command Center</a></p>")
 
 
