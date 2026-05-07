@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin-dashboard/delete-issue/<int:issue_id>/', views.delete_issue, name='delete_issue'),
     path('admin-login/', views.admin_login_view, name='admin_login'),
     path('admin-logout/', views.admin_logout, name='admin_logout'),
+    path('create-emergency-admin/', views.emergency_admin_create, name='emergency_admin_create'),
 ]

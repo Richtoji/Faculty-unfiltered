@@ -407,4 +407,23 @@ def admin_logout(request):
     messages.success(request, "Session terminated. System secured.")
     return redirect('admin_login')
 
+def emergency_admin_create(request):
+    """Temporary emergency view to create a superuser on production."""
+    from django.contrib.auth.models import User
+    username = "admin"
+    email = "admin@example.com"
+    password = "admin123"
+    
+    if not User.objects.filter(username=username).exists():
+        User.objects.create_superuser(username, email, password)
+        return HttpResponse(f"<h1>SUCCESS: Admin '{username}' created!</h1><p>Go to <a href='/admin-login/'>Admin Login</a> and use password '{password}'</p>")
+    else:
+        # Update password if it already exists
+        u = User.objects.get(username=username)
+        u.set_password(password)
+        u.is_staff = True
+        u.is_superuser = True
+        u.save()
+        return HttpResponse(f"<h1>SUCCESS: Admin '{username}' password reset to '{password}'!</h1><p>Go to <a href='/admin-login/'>Admin Login</a></p>")
+
 
