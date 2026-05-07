@@ -27,7 +27,10 @@ def admin_login_view(request):
             else:
                 messages.error(request, "Access Denied: Invalid credentials or insufficient clearance.")
         else:
-            messages.error(request, "Invalid login parameters.")
+            # Show specific form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
     else:
         form = AuthenticationForm()
     
