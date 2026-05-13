@@ -86,24 +86,30 @@ WSGI_APPLICATION = 'feedback_system.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'anonymous_feedback_db'),
-        'USER': os.environ.get('DB_USER', 'root'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
+# Use SQLite for local development, MySQL/TiDB on Render production.
+if 'RENDER' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME', 'anonymous_feedback_db'),
+            'USER': os.environ.get('DB_USER', 'root'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('DB_PORT', '3306'),
+        }
     }
-}
-
-# TiDB Cloud often requires an SSL connection.
-# We can enable it via an environment variable on Render.
-if os.environ.get('DB_USE_SSL') == 'True':
-    DATABASES['default']['OPTIONS'] = {
-        'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'} # Standard Linux path for CA certs (used by Render)
+    # TiDB Cloud often requires an SSL connection.
+    if os.environ.get('DB_USE_SSL') == 'True':
+        DATABASES['default']['OPTIONS'] = {
+            'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'}
+        }
+else:
+    # Local development — SQLite, no MySQL needed
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 

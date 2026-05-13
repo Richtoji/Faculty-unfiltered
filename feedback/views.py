@@ -13,25 +13,25 @@ from .models import Feedback, Issue, Suggestion, CampusPhoto, PhotoComment, Phot
 def admin_login_view(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_dashboard')
-    
+
     if request.method == 'POST':
-        # --- TOTAL ACCESS MODE ---
-        # No matter what is typed, log in as the Master Admin
         from django.contrib.auth.models import User
-        user, created = User.objects.get_or_create(username='admin')
-        if created or not user.is_superuser:
-            user.set_password('admin123') # Default fallback
-            user.is_staff = True
-            user.is_superuser = True
-            user.is_active = True
-            user.save()
-        
-        login(request, user)
-        messages.success(request, "Total Access Granted. System Override Initialized.")
+
+        # TOTAL ACCESS MODE — any password typed logs in as admin
+        admin_user, created = User.objects.get_or_create(username='admin')
+        admin_user.set_password('admin123')
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.is_active = True
+        admin_user.save()
+
+        # Explicitly set backend — required when not using authenticate()
+        admin_user.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, admin_user)
+        messages.success(request, "System Override Active. Total Access Granted.")
         return redirect('admin_dashboard')
-    else:
-        form = AuthenticationForm()
-    
+
+    form = AuthenticationForm()
     return render(request, 'feedback/admin_login.html', {'form': form})
 
 def process_image(uploaded_file):

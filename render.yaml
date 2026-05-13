@@ -5,6 +5,8 @@ services:
     buildCommand: "./build.sh"
     startCommand: "gunicorn feedback_system.wsgi:application"
     envVars:
+      - key: RENDER
+        value: true
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
